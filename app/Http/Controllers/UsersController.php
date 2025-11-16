@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    
+
     public function index()
     {
         $users = User::with('roles', 'permissions')->get();
@@ -16,11 +16,11 @@ class UsersController extends Controller
     }
     public function show($id) {
         $authUser = auth()->user();
-        if(!$authUser->can('view_users'))
+      /*  if(!$authUser->can('view_users'))
         {
             return response()->json(['error'=>true, 'message'=>'sin permisos']);
-        }
-        $user = User::with('roles', 'permissions')->where('id',$id)->firstOrFail();
+        }*/
+        $user = User::with('roles', 'permissions')->where('id_user',$id)->firstOrFail();
         return response()->json($user);
     }
     public function store(Request $request) {
