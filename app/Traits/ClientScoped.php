@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Client;
 
 trait ClientScoped {
 
@@ -11,24 +10,24 @@ trait ClientScoped {
     {
         static::addGlobalScope('client_scope', function (Builder $builder) {
 
-            if (!auth()->check()) {
-                return;
+            // Verificamos que haya un usuario autenticado
+            if (!auth()->check()) return;
+
+            $user = auth()->user();
+
+            // Cargamos client si existe
+            $user->loadMissing('client');
+            $client = $user->client;
+
+            // Si el usuario no tiene client, no filtramos (admin global)
+            if (!$client) return;
+
+            $clientId = $client->id_client;
+
+            // Solo aplicamos si el modelo tiene columna id_client
+            if (\Schema::hasColumn($builder->getModel()->getTable(), 'id_client')) {
+                $builder->where($builder->getModel()->getTable() . '.id_client', $clientId);
             }
-
-            $userId = auth()->id();
-
-            // ¿Este usuario pertenece a un client?
-            $client = Client::where('id_user', $userId)->first();
-
-            // Si no tiene client asociado → usuario interno → full acceso
-            if (!$client) {
-                return;
-            }
-
-            $builder->where(
-                $builder->getModel()->getTable() . '.id_client',
-                $client->id_client
-            );
         });
     }
 }
