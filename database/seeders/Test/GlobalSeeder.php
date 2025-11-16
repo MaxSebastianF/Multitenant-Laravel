@@ -11,14 +11,18 @@ use App\Models\Specs;
 use App\Models\Supplier;
 use App\Models\Maintenance;
 use App\Models\Suscription;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class GlobalSeeder extends Seeder
 {
    public function run(): void
     {
-        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
-        Role::firstOrCreate(['name' => 'client_user', 'guard_name' => 'api']);
+        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'client_user']);
+        $adminRole = Role::findByName('admin');
+        $permission = Permission::create(['name' => 'manage_users','group' => 'manage_clients']);
+    $adminRole->syncPermissions($permission);
         // --- Admin global ---
         $admin = User::create([
             'name' => 'Super Admin',
